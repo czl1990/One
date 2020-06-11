@@ -22,6 +22,7 @@ public class BillController整合 {
 		String A ="abc";
 		System.out.println(A);
 		System.out.println("测试");
+		System.out.println("sddsdsdsadsadsa");
 		System.out.println("allBill="+allBill);
 		billService.saveObject(allBill);
 		System.out.println("abcsdsd");
