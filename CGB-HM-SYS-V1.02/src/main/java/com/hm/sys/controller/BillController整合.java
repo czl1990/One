@@ -19,15 +19,10 @@ public class BillController整合 {
 	@RequestMapping("doSaveObject")
 	@ResponseBody
 	public JsonResult doSaveObject(CollectBill allBill){
-		String A ="abc";
-		System.out.println(A);
 		System.out.println("测试");
-		System.out.println("sddsdsdsadsadsa");
 		System.out.println("allBill="+allBill);
 		billService.saveObject(allBill);
-		String B ="";
-		System.out.println(B);
-		System.out.println(B);
+		String BBB="";
 		return new JsonResult("收银成功");
 	}
 }
