@@ -19,6 +19,8 @@ public class BillController整合 {
 	@RequestMapping("doSaveObject")
 	@ResponseBody
 	public JsonResult doSaveObject(CollectBill allBill){
+		String A ="abc";
+		System.out.println(A);
 		System.out.println("测试");
 		System.out.println("allBill="+allBill);
 		billService.saveObject(allBill);
