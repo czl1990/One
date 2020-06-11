@@ -25,8 +25,7 @@ public class BillController整合 {
 		System.out.println("sddsdsdsadsadsa");
 		System.out.println("allBill="+allBill);
 		billService.saveObject(allBill);
-		String B ="";
-		System.out.println(B);
+		System.out.println("abcsdsd");
 		return new JsonResult("收银成功");
 	}
 }
