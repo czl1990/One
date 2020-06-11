@@ -1,0 +1,233 @@
+<div class="row">
+	<div class="col-md-3 col-sm-6 col-xs-12">
+		<div class="info-box bg-aqua">
+			<span class="info-box-icon"><i class="fa fa-bookmark-o"></i></span>
+
+			<div class="info-box-content">
+				<span class="info-box-text">入住数</span> <span class="info-box-number">20</span>
+
+				<div class="progress">
+					<div class="progress-bar" style="width: 70%"></div>
+				</div>
+				<span class="progress-description"> 70% Increase in 30 Days </span>
+			</div>
+			<!-- /.info-box-content -->
+		</div>
+		<!-- /.info-box -->
+	</div>
+	<!-- /.col -->
+	<div class="col-md-3 col-sm-6 col-xs-12">
+		<div class="info-box bg-green">
+			<span class="info-box-icon"><i class="fa fa-thumbs-o-up"></i></span>
+
+			<div class="info-box-content">
+				<span class="info-box-text">好评</span> <span class="info-box-number">360</span>
+
+				<div class="progress">
+					<div class="progress-bar" style="width: 55%"></div>
+				</div>
+				<span class="progress-description"> 55% Increase in 30 Days </span>
+			</div>
+			<!-- /.info-box-content -->
+		</div>
+		<!-- /.info-box -->
+	</div>
+	<!-- /.col -->
+	<div class="col-md-3 col-sm-6 col-xs-12">
+		<div class="info-box bg-yellow">
+			<span class="info-box-icon"><i class="fa fa-calendar"></i></span>
+
+			<div class="info-box-content">
+				<span class="info-box-text">预定数</span> <span class="info-box-number">410</span>
+
+				<div class="progress">
+					<div class="progress-bar" style="width: 60%"></div>
+				</div>
+				<span class="progress-description"> 60% Increase in 30 Days </span>
+			</div>
+			<!-- /.info-box-content -->
+		</div>
+		<!-- /.info-box -->
+	</div>
+	<!-- /.col -->
+	<div class="col-md-3 col-sm-6 col-xs-12">
+		<div class="info-box bg-red">
+			<span class="info-box-icon"><i class="fa fa-comments-o"></i></span>
+
+			<div class="info-box-content">
+				<span class="info-box-text">评论数</span> <span class="info-box-number">410</span>
+
+				<div class="progress">
+					<div class="progress-bar" style="width: 40%"></div>
+				</div>
+				<span class="progress-description"> 40% 增加 in 30 Days </span>
+			</div>
+			<!-- /.info-box-content -->
+		</div>
+		<!-- /.info-box -->
+	</div>
+	<!-- /.col -->
+</div>
+
+<section class="content">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="box">
+				<div class="box-header">
+					<h3 class="box-title">收银系统管理</h3>
+					<div class="box-tools">
+						<div class="input-group input-group-sm" style="width: 250px;">
+							<input type="text" name="table_search" id="roomNum"
+								class="form-control pull-right" placeholder="房间号">
+
+							<div class="input-group-btn">
+								<button type="button" class="btn btn-default btn-search">
+									<i class="fa fa-search"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- /.box-header -->
+				<div class="box-body table-responsive no-padding">
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>房间号</th>
+								<th>客户姓名</th>
+								<th>房间类型</th>
+								<th>入住时间</th>
+								<th>退房时间</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyId"></tbody>
+					</table>
+				</div>
+				<div id="pageId" class="box-footer clearfix"></div>
+				<!-- /.box-body -->
+			</div>
+			<!-- /.box -->
+		</div>
+	</div>
+</section>
+<script type="text/javascript">
+$(function(){
+	//异步加载分页页面
+	$("#pageId").load("doPageUI.do",function(){  //回调函数
+		//当异步函数load方法执行结束执行数据加载。为了防止两个异步加载不确定先执行完成哪里一个
+		//通过此方法异步加载数据，然后将数据更新到页面
+		doGetObjects();
+	});
+	//在查询按钮上注册点击事件
+	$(".input-group-btn").on("click",".btn-search",doQueryObjects)
+	
+	//在查看按钮上注册点击事件，使其跳转其他页面
+	$("#tbodyId").on("click",".btn-check",doCheckById);
+})
+
+//此方法尚未使用，后期添加了修改按钮后，用于对单条数据的修改
+function doGetCheackedIds(){
+	return $("#tbodyId input[name='cItem']:checked").val();
+}
+
+
+function doSetPageCurrent(){
+	var pageCount=$("#pageId").data("pageCount");
+	var pageCurrent=$("#pageId").data("pageCurrent");
+	if(pageCurrent==pageCount&&pageCurrent>1){
+		pageCurrent--;
+		$("#pageId").data("pageCurrent",pageCurrent);
+	}
+}
+
+function doQueryObjects(){
+	//1.修改当前页码值
+	//为什么要在此位置初始化pageCurrent的值为1?
+    //数据查询时页码的初始位置也应该是第一页
+	$("#pageId").data("pageCurrent",1)
+	//为什么要调用doGetObjects函数？
+	//重用js代码，简化jS代码编写。
+	doGetObjects();//跳到第一页后，执行查询
+}
+
+function doGetObjects(){
+	//1.请求参数定义
+	var pageCurrent=$("#pageId").data("pageCurrent")//获取当前
+	//假如pageCurrent没有值则赋值为1
+	if(!pageCurrent) pageCurrent=1//如果没有数据，则默认第一页
+	
+	var params={"pageCurrent":pageCurrent}
+	var roomnum=$("#roomNum").val()//获取输入框中输入的值
+	 if(roomnum) params.roomNum=roomnum;//在已有的js格式中，添加一个key和value
+	//2.请求url定义
+	var url="money/dofindPageObject.do";
+	//3.发起异步请求获取数据(借助jquery中的getJSON)
+	$.getJSON(url,params,function(result){//callback函数
+		console.log(result);
+		doHandleResponseResult(result);//JSONResult
+	});//ajax的xhr执行回调函数
+}
+
+//查看按钮，跳转页面
+function doCheckById(){
+	var url="money/doBillIndex.do"
+	var roomnum=$(this).parents("tr").data("roomNum");
+	
+	$("#mainContentId").load(url,function(){
+		$("#mainContentId").data("roomNum",roomnum);
+	});
+}
+
+//处理响应结果
+function doHandleResponseResult(result){
+	if(result.state==1){//JSONResult.state  1正确0错误
+		//显示当前房间数据
+		doSetTableBodyRows(result.data.records)//看JSONResult数据的结构图。获取records的值
+		//显示分页信息
+		doSetPagination(result.data)
+	}else{
+		alert(result.message);
+	}
+}
+
+function doSetTableBodyRows(records){
+	//1.获取tbody对象，并清空原有内容
+	var tBody=$("#tbodyId");
+	tBody.empty();//tBody.innerHTML=""
+	//2.迭代records记录，然后追加到tBody中
+	for(var i=0;i<records.length;i++){
+		//2.1创建tr对象
+		var tr=$("<tr></tr>");
+		tr.data("id",records[i].id);
+		tr.data("roomNum",records[i].roomNum);
+		//2.2创建td对象
+		var tds=doCreateTds(records[i]);
+		//2.3将td追加到tr
+		tr.append(tds);
+		//2.4将tr追加到tBody
+		tBody.append(tr);
+	}
+}
+
+function doCreateTds(data){
+	   var tds="<td><input type='radio' class='cBox' name='cItem' value='"+data.id+"'></td>"+
+		   	 "<td>"+data.roomNum+"</td>"+
+		     "<td>"+data.guestName+"</td>"+
+		     "<td>"+data.roomType+"</td>"+
+		     "<td>"+new Date(data.intime).toLocaleString()+"</td>"+
+		     "<td>"+new Date(data.outtime).toLocaleString()+"</td>"+
+		     "<td><button type='button' class='btn btn-warning btn-check' name='check' id='checkId'>"+"查看"+"</button></td>"; 
+		return tds;
+   }
+
+
+function doSetPagination(data){
+	console.log(data)
+}
+</script>
+
+
+
+

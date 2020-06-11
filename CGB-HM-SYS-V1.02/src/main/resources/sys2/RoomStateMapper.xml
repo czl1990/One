@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hm.sys.dao.RoomStateDao">
+	<select id="findAvailableRoomNumsByRoomType" resultType="int">
+		select roomNum from roomstate where roomType=#{roomType} and roomstate!='维修'
+	</select>
+	
+	<update id="updateRoomState" parameterType="int">
+		update roomstate set roomstate='有人' where roomNum= (select roomNum from register where id = #{id})
+	</update>
+	
+	
+	
+</mapper>

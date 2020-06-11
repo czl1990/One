@@ -1,0 +1,325 @@
+<div class="container-fluid" style="background:#FFF">
+	<div class="row-fluid">
+		<div class="span12">
+		
+			<br />
+			<!-- 1 -->
+			<div class="row-fluid">
+				<div class="span3">
+					<h3>客人姓名(先生/女士)</h3>
+					<p>
+						<div id="consumerNameId" class="badge badge-inverse">数据加载中...</div>
+					</p>
+				</div>
+				<div class="span3"></div>
+				<div class="span3">
+					<h3>入住日期</h3>
+					<p>
+						<div id="inTimeId" class="badge badge-inverse">数据加载中...</div>
+					</p>
+				</div>
+				<div class="span3"></div>
+			</div>
+
+			<!-- 2 -->
+			<div class="row-fluid">
+				<div class="span3">
+					<h3>客房号</h3>
+					<p>
+						<div id="roomId" class="badge badge-inverse">数据加载中...</div>
+					</p>
+				</div>
+				<div class="span3"></div>
+				<div class="span3">
+					<h3>退房日期</h3>
+					<p>
+						<div id="outTimeId" class="badge badge-inverse">数据加载中...</div>
+					</p>
+				</div>
+				<div class="span3"></div>
+			</div>
+
+			<!-- 3 -->
+			<div class="row-fluid">
+				<div class="span3">
+					<h3>流水单号</h3>
+					<p>
+						<div id="serialNumId" class="badge badge-inverse">数据加载中...</div>
+					</p>
+				</div>
+
+			</div>
+
+
+
+
+
+
+			<br />
+			<div class="row-fluid">
+				<div class="page-header">
+					<h1>总账单</h1>
+				</div>
+			</div>
+
+			<!-- 房费表单 -->
+			<div class="row-fluid">
+				<div class="box">
+					<div class="box-header">
+						<h3 class="box-title">房费</h3>
+					</div>
+					<!-- /.box-header -->
+					<div class="box-body table-responsive no-padding">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>房间号</th>
+									<th>入住时间</th>
+									<th>退房时间</th>
+									<th>房费金额</th>
+								</tr>
+							</thead>
+							<tbody id="feetbodyId">
+								<tr>
+					    		</tr></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- 定金 -->
+			<div class="row-fluid">
+				<div class="box">
+					<div class="box-header">
+						<h3 class="box-title">定金</h3>
+					</div>
+					<!-- /.box-header -->
+					<div class="box-body table-responsive no-padding">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>房间号</th>
+									<th>入住时间</th>
+									<th>退房时间</th>
+									<th>定金金额</th>
+								</tr>
+							</thead>
+							<tbody id="earnesttbodyId">
+								<tr>
+					    		</tr></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- 房内消费 -->
+			<div class="row-fluid">
+				<div class="box">
+					<div class="box-header">
+						<h3 class="box-title">房内消费</h3>
+					</div>
+					<!-- /.box-header -->
+					<div class="box-body table-responsive no-padding">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>商品名</th>
+									<th>数量</th>
+									<th>消费时间</th>
+									<th>消费金额</th>
+								</tr>
+							</thead>
+							<tbody id="goodsConsumetbodyId">
+								<tr>
+								<td colspan="4">数据正在加载中....</td>
+					    		</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			
+			<!-- 应收款 -->
+			<br />
+			<div class="row-fluid">
+				<div class="span1">
+					<h3>应收款:</h3>
+				</div>
+				<div class="span2">
+					<div id="needMoneyId" class="badge badge-inverse">数据加载中...</div>
+				</div>
+			</div>
+			
+			<!-- 操作员 -->
+			<br />
+			<div class="row-fluid">
+				<div class="span1">
+					<h3>操作员:</h3>
+				</div>
+				<div class="span2">
+					<div id="employeeId" class="badge badge-inverse">数据加载中...</div>
+				</div>
+			</div>
+			
+			<!-- 按钮 -->
+			<br />
+			<div class="box-footer">
+				<button type="button" class="btn btn-default btn-cancel">取消</button>
+				<button type="button" class="btn btn-info pull-right btn-save">结账</button>
+			</div>
+
+
+		</div>
+	</div>
+</div>
+
+<script src="js/jquery.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript">
+
+	$(function(){
+		doGetBillObjects();
+		//取消按钮
+		//结账按钮
+		$(".box-footer")
+		.on("click",".btn-cancel",doCancel)
+		.on("click",".btn-save",doUpdate);
+	});
+	
+	function doGetBillObjects(){
+		
+		//获取当前选中的房号
+		var roomnum=$("#mainContentId").data("roomNum");
+		console.log(roomnum);
+		var params={"roomNum":roomnum}
+		var url="collect/doFindObjects.do";
+		//发起异步请求
+		$.getJSON(url,params,function(result){
+			if(result.state==1){
+				doLoadBillPageUI(result);
+				
+			}else{
+				alert(result.message);
+			}
+			
+			console.log(result);
+		});
+	}
+	
+	function doLoadBillPageUI(result){
+		$("#consumerNameId").html(result.data.guestName);
+		$("#inTimeId").html(new Date(result.data.intime).toLocaleString());
+		$("#roomId").html(result.data.roomNum);
+		$("#outTimeId").html(new Date(result.data.outtime).toLocaleString());
+		$("#serialNumId").html(result.data.serialnumber);
+		$("#needMoneyId").html(result.data.needmoney);
+		$("#employeeId").html(result.data.employee);
+		doSetgoodsconsumetBodyRows(result.data.goodsconsume);
+		doSetfeetBodyRows(result.data);
+		doSetearnesttBodyRows(result.data);
+	}
+	
+	function doSetgoodsconsumetBodyRows(goodsconsume){
+		//获取tbody对象,并清空
+		var tBody=$("#goodsConsumetbodyId");
+		tBody.empty();
+		for(var i in goodsconsume){
+			var tr=$("<tr></tr>");
+			var tds=doCreateTds(goodsconsume[i]);
+			tr.append(tds);
+			tBody.append(tr);
+		}
+		
+	}
+	
+	function doCreateTds(row){
+		var tds=
+			   "<td>"+row.goods+"</td>"+
+		       "<td>"+row.number+"</td>"+
+		       "<td>"+new Date(row.createtime).toLocaleString()+"</td>"+
+		       "<td>"+row.goodsmoney+"</td>";
+		       return tds;
+	}
+	
+	function doSetfeetBodyRows(row){
+		//获取tbody对象,并清空
+		var tBody=$("#feetbodyId");
+		tBody.empty();
+		var tr=$("<tr></tr>");
+		var tds=
+			"<td>"+row.roomNum+"</td>"+
+	        "<td>"+new Date(row.intime).toLocaleString()+"</td>"+
+	        "<td>"+new Date(row.outtime).toLocaleString()+"</td>"+
+	        "<td>"+row.livemoney+"</td>";
+		tr.append(tds);
+		tBody.append(tr);
+	}
+	
+	function doSetearnesttBodyRows(row){
+		//获取tbody对象,并清空
+		var tBody=$("#earnesttbodyId");
+		tBody.empty();
+		var tr=$("<tr></tr>");
+		var tds=
+			"<td>"+row.roomNum+"</td>"+
+		    "<td>"+new Date(row.intime).toLocaleString()+"</td>"+
+		    "<td>"+new Date(row.outtime).toLocaleString()+"</td>"+
+		    "<td>"+row.earnest+"</td>";
+		tr.append(tds);
+		tBody.append(tr);
+	}
+	
+	function doCancel(){
+		var url="money/doMoneyListUI.do";
+    	$("#mainContentId")
+    	.load(url,function(){
+    	  $("#mainContentId").removeData();
+    	});
+	}
+	
+	function doUpdate(){
+		var r=confirm("是否结账?");
+		if(r==true)
+		{
+			//获取当前选中的房号
+			var roomnum=$("#mainContentId").data("roomNum");
+			console.log(roomnum);
+			var params={"roomNum":roomnum}
+			var url="collect/doFindObjects.do";
+			//发起异步请求
+			$.getJSON(url,params,function(result){
+				if(result.state==1){
+					//
+					var params={
+							guestName:result.data.guestName,
+							roomNum:result.data.roomNum,
+							serialnumber:result.data.serialnumber,
+							earnest:result.data.earnest,
+							needmoney:result.data.needmoney,
+							employee:result.data.employee,
+							checkin:result.data.intime,
+							checkout:result.data.outtime
+					}
+					console.log("params:!!",params)
+					var url="bill/doSaveObject.do";
+					$.post(url,params,function(result){
+			    		if(result.state==1){
+			    		   alert(result.message);
+			    		   //返回页面
+			    		   doCancel();
+			    		}else{
+			    		   alert(result.message);
+			    		}
+			    	});
+					
+				}else{
+					alert(result.message);
+				}
+			});
+		}
+	}
+	
+</script>
+
+
+

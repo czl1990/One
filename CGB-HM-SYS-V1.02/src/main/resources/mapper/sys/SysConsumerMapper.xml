@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hm.sys.dao.SysConsumerDao">
+
+	<select id="getRowCount" resultType="int">
+		select count(*)
+		from goods
+		<include refid="queryWhereId" />
+	</select>
+
+	<select id="findPageObjects" resultType="com.hm.sys.entity.SysConsumer">
+		select *
+		from goods
+		<include refid="queryWhereId" />
+		order by id desc
+		limit #{startIndex},#{pageSize}
+	</select>
+
+	<sql id="queryWhereId">
+		<where>
+			<if test="goods!=null and goods!=''">
+				goods like concat("%",#{goods},"%")
+			</if>
+		</where>
+	</sql>
+<insert id="insertBills"
+           parameterType="com.hm.sys.entity.SysBills"
+           useGeneratedKeys="true"
+           keyProperty="id">
+      insert into goodsconsume
+      (goods,number,goodsmoney,roomNum,createtime)
+      values
+      (#{goods},#{number},#{goodsmoney},#{roomNum},now())
+   </insert>
+   
+   	<insert id="insertObject" parameterType="com.hm.sys.entity.SysConsumer">
+		insert into
+		goods(goods,price)
+		values
+		(#{goods},#{price})
+	</insert>
+
+	<delete id="deleteObjects">
+		delete from goods
+		where id in <!-- (1,2,3,4) -->
+		<foreach collection="ids" open="(" close=")" separator=","
+			item="id">
+			#{id}
+		</foreach>
+	</delete>
+</mapper>

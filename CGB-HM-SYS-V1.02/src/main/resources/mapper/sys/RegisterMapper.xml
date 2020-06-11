@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hm.sys.dao.RegisterDao">
+
+	<!-- 基于房号查询guestName,roomNum,intime,outtime, livemoney,earnest这些信息并存在map集合中 -->
+	<select id="findRegisterObjects" resultType="map">
+		select
+		guestName,roomNum,intime,outtime,
+		livemoney,earnest from register where
+		roomNum=#{roomNum}
+	</select>
+	<!-- 基于房号在点击结账后修改登记表房间状态 -->
+	<update id="updateRoomState">
+		update register set roomstate="空闲"
+		where
+		roomNum=#{roomNum}
+	</update>
+	<!-- 基于房号查询guestName,roomNum,intime,outtime, livemoney,earnest这些信息并存在map集合中 -->
+
+
+	<select id="findUnavailableRoomNumsByTimeRange" resultType="int">
+		select roomNum from register where reserve!=0 and roomNum in
+		<foreach collection="roomNums" open="(" close=")" separator=","
+			item="roomNum">
+			#{roomNum}
+		</foreach>
+		and
+		(
+		intime between #{inTime} and #{outTime}
+		or
+		outTime between #{inTime}
+		and #{outTime}
+		or
+		#{inTime} between inTime and
+		outTime
+		)
+	</select>
+	<!-- 插入预订信息 -->
+	<insert id="insertReserve" parameterType="com.hm.sys.vo.ReserveResult"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into register
+		(reservePeople, reservePhone, roomType, roomNum, intime, outtime,
+		createtime, earnest, liveday, livemoney, reserve, employee)
+		values
+		(#{reservepeople}, #{reservephone}, #{roomtype}, #{roomnum},
+		#{intime}, #{outtime}, now(), #{earnest}, #{liveday},
+		#{livemoney},#{reserve}, #{employee})
+	</insert>
+	<!-- 修改订单状态 -->
+	<update id="validById">
+		update register set
+		reserve=#{reserve},employee=#{employee} where id=#{id}
+	</update>
+
+	<sql id="doQureyWhereId">
+		<where>
+			<if test="reservepeople!=null and reservepeople!=''">
+				reservepeople like concat("%",#{reservepeople},"%") and
+			</if>
+			reserve!=1
+		</where>
+	</sql>
+
+	<sql id="doQureyRegisterWhereId">
+		<where>
+			<if test="reservepeople!=null and reservepeople!=''">
+				reservepeople like concat("%",#{reservepeople},"%") and
+			</if>
+			reserve=1
+		</where>
+	</sql>
+
+
+	<!-- 查找预订订单的分页数据 -->
+	<select id="findReservePageObjects" resultType="com.hm.sys.vo.ReserveResult">
+		select
+		id, reservePeople, reservePhone, roomType, roomNum, intime,
+		outtime,
+		createtime, reserve
+		from
+		register
+		<include refid="doQureyWhereId" />
+		order by createTime desc
+		limit #{startIndex},#{pageSize}
+	</select>
+
+	<!-- 查找登记订单的分页数据 -->
+	<select id="findRegisterPageObjects" resultType="com.hm.sys.vo.RegisterResult">
+		select
+		id, reservePeople, reservePhone, roomType, roomNum, intime,
+		outtime,
+		createtime, guestname, guestname2, guestname3, guestname4,
+		earnest,
+		livemoney
+		from
+		register
+		<include refid="doQureyRegisterWhereId" />
+		order by createTime desc
+		limit #{startIndex},#{pageSize}
+	</select>
+
+	<!-- 统计记录的行数 -->
+	<select id="getRowCountByReservepeople" resultType="int">
+		select count(*) from register
+		<include refid="doQureyWhereId" />
+	</select>
+
+	<!-- 统计登记记录的行数 -->
+	<select id="getRegisterRowCountByReservepeople" resultType="int">
+		select count(*) from register
+		<include refid="doQureyRegisterWhereId" />
+	</select>
+
+	<!-- 预订 订单登记入住 -->
+	<update id="updateReserveToRegister" parameterType="com.hm.sys.vo.GuestResult">
+		update
+		register set
+		roomstate='有人',
+		reserve=1,
+		createtime=now(),
+		guestname=#{guestname},idcard=#{idcard} ,
+		guestname2=#{guestname2},idcard2=#{idcard2},
+		guestname3=#{guestname3},idcard3=#{idcard3},
+		guestname4=#{guestname4},idcard4=#{idcard4}
+		where id=#{id} and
+		reserve!=0
+	</update>
+
+	<!-- 查找住户信息 -->
+	<select id="findGuestById" resultType="com.hm.sys.vo.GuestResult">
+		select
+		id,guestname,guestname2,guestname3,guestname4,idcard,idcard2,idcard3,idcard4
+		from register
+		where id=#{id} and reserve=1
+	</select>
+
+
+
+	<resultMap id="BaseResultMap" type="com.hm.sys.entity.Register">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="reservePeople" jdbcType="VARCHAR" property="reservepeople" />
+		<result column="reservePhone" jdbcType="VARCHAR" property="reservephone" />
+		<result column="guestName" jdbcType="VARCHAR" property="guestname" />
+		<result column="IDcard" jdbcType="CHAR" property="idcard" />
+		<result column="roomType" jdbcType="VARCHAR" property="roomtype" />
+		<result column="roomNum" jdbcType="INTEGER" property="roomnum" />
+		<result column="intime" jdbcType="TIMESTAMP" property="intime" />
+		<result column="outtime" jdbcType="TIMESTAMP" property="outtime" />
+		<result column="roomstate" jdbcType="VARCHAR" property="roomstate" />
+		<result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
+		<result column="earnest" jdbcType="INTEGER" property="earnest" />
+		<result column="liveday" jdbcType="INTEGER" property="liveday" />
+		<result column="livemoney" jdbcType="INTEGER" property="livemoney" />
+		<result column="employee" jdbcType="VARCHAR" property="employee" />
+		<result column="reserve" jdbcType="INTEGER" property="reserve" />
+		<result column="guestName2" jdbcType="VARCHAR" property="guestname2" />
+		<result column="IDcard2" jdbcType="CHAR" property="idcard2" />
+		<result column="guestName3" jdbcType="VARCHAR" property="guestname3" />
+		<result column="IDcard3" jdbcType="CHAR" property="idcard3" />
+		<result column="guestName4" jdbcType="VARCHAR" property="guestname4" />
+		<result column="IDcard4" jdbcType="CHAR" property="idcard4" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, reservePeople, reservePhone, guestName, IDcard,
+		roomType, roomNum,
+		intime, outtime,
+		roomstate, createtime, earnest,
+		liveday, livemoney, employee, reserve,
+		guestName2,
+		IDcard2, guestName3,
+		IDcard3, guestName4, IDcard4
+	</sql>
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from register
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		register
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.hm.sys.entity.Register">
+		insert into register (id,
+		reservePeople, reservePhone,
+		guestName, IDcard, roomType,
+		roomNum,
+		intime, outtime,
+		roomstate, createtime, earnest,
+		liveday, livemoney,
+		employee,
+		reserve, guestName2, IDcard2,
+		guestName3, IDcard3, guestName4,
+		IDcard4)
+		values (#{id,jdbcType=INTEGER},
+		#{reservepeople,jdbcType=VARCHAR},
+		#{reservephone,jdbcType=VARCHAR},
+		#{guestname,jdbcType=VARCHAR}, #{idcard,jdbcType=CHAR},
+		#{roomtype,jdbcType=VARCHAR},
+		#{roomnum,jdbcType=INTEGER},
+		#{intime,jdbcType=TIMESTAMP},
+		#{outtime,jdbcType=TIMESTAMP},
+		#{roomstate,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP},
+		#{earnest,jdbcType=INTEGER},
+		#{liveday,jdbcType=INTEGER},
+		#{livemoney,jdbcType=INTEGER},
+		#{employee,jdbcType=VARCHAR},
+		#{reserve,jdbcType=INTEGER}, #{guestname2,jdbcType=VARCHAR},
+		#{idcard2,jdbcType=CHAR},
+		#{guestname3,jdbcType=VARCHAR},
+		#{idcard3,jdbcType=CHAR},
+		#{guestname4,jdbcType=VARCHAR},
+		#{idcard4,jdbcType=CHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="com.hm.sys.entity.Register">
+		insert into register
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="reservepeople != null">
+				reservePeople,
+			</if>
+			<if test="reservephone != null">
+				reservePhone,
+			</if>
+			<if test="guestname != null">
+				guestName,
+			</if>
+			<if test="idcard != null">
+				IDcard,
+			</if>
+			<if test="roomtype != null">
+				roomType,
+			</if>
+			<if test="roomnum != null">
+				roomNum,
+			</if>
+			<if test="intime != null">
+				intime,
+			</if>
+			<if test="outtime != null">
+				outtime,
+			</if>
+			<if test="roomstate != null">
+				roomstate,
+			</if>
+			<if test="createtime != null">
+				createtime,
+			</if>
+			<if test="earnest != null">
+				earnest,
+			</if>
+			<if test="liveday != null">
+				liveday,
+			</if>
+			<if test="livemoney != null">
+				livemoney,
+			</if>
+			<if test="employee != null">
+				employee,
+			</if>
+			<if test="reserve != null">
+				reserve,
+			</if>
+			<if test="guestname2 != null">
+				guestName2,
+			</if>
+			<if test="idcard2 != null">
+				IDcard2,
+			</if>
+			<if test="guestname3 != null">
+				guestName3,
+			</if>
+			<if test="idcard3 != null">
+				IDcard3,
+			</if>
+			<if test="guestname4 != null">
+				guestName4,
+			</if>
+			<if test="idcard4 != null">
+				IDcard4,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="reservepeople != null">
+				#{reservepeople,jdbcType=VARCHAR},
+			</if>
+			<if test="reservephone != null">
+				#{reservephone,jdbcType=VARCHAR},
+			</if>
+			<if test="guestname != null">
+				#{guestname,jdbcType=VARCHAR},
+			</if>
+			<if test="idcard != null">
+				#{idcard,jdbcType=CHAR},
+			</if>
+			<if test="roomtype != null">
+				#{roomtype,jdbcType=VARCHAR},
+			</if>
+			<if test="roomnum != null">
+				#{roomnum,jdbcType=INTEGER},
+			</if>
+			<if test="intime != null">
+				#{intime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="outtime != null">
+				#{outtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="roomstate != null">
+				#{roomstate,jdbcType=VARCHAR},
+			</if>
+			<if test="createtime != null">
+				#{createtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="earnest != null">
+				#{earnest,jdbcType=INTEGER},
+			</if>
+			<if test="liveday != null">
+				#{liveday,jdbcType=INTEGER},
+			</if>
+			<if test="livemoney != null">
+				#{livemoney,jdbcType=INTEGER},
+			</if>
+			<if test="employee != null">
+				#{employee,jdbcType=VARCHAR},
+			</if>
+			<if test="reserve != null">
+				#{reserve,jdbcType=INTEGER},
+			</if>
+			<if test="guestname2 != null">
+				#{guestname2,jdbcType=VARCHAR},
+			</if>
+			<if test="idcard2 != null">
+				#{idcard2,jdbcType=CHAR},
+			</if>
+			<if test="guestname3 != null">
+				#{guestname3,jdbcType=VARCHAR},
+			</if>
+			<if test="idcard3 != null">
+				#{idcard3,jdbcType=CHAR},
+			</if>
+			<if test="guestname4 != null">
+				#{guestname4,jdbcType=VARCHAR},
+			</if>
+			<if test="idcard4 != null">
+				#{idcard4,jdbcType=CHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.hm.sys.entity.Register">
+		update register
+		<set>
+			<if test="reservepeople != null">
+				reservePeople = #{reservepeople,jdbcType=VARCHAR},
+			</if>
+			<if test="reservephone != null">
+				reservePhone = #{reservephone,jdbcType=VARCHAR},
+			</if>
+			<if test="guestname != null">
+				guestName = #{guestname,jdbcType=VARCHAR},
+			</if>
+			<if test="idcard != null">
+				IDcard = #{idcard,jdbcType=CHAR},
+			</if>
+			<if test="roomtype != null">
+				roomType = #{roomtype,jdbcType=VARCHAR},
+			</if>
+			<if test="roomnum != null">
+				roomNum = #{roomnum,jdbcType=INTEGER},
+			</if>
+			<if test="intime != null">
+				intime = #{intime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="outtime != null">
+				outtime = #{outtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="roomstate != null">
+				roomstate = #{roomstate,jdbcType=VARCHAR},
+			</if>
+			<if test="createtime != null">
+				createtime = #{createtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="earnest != null">
+				earnest = #{earnest,jdbcType=INTEGER},
+			</if>
+			<if test="liveday != null">
+				liveday = #{liveday,jdbcType=INTEGER},
+			</if>
+			<if test="livemoney != null">
+				livemoney = #{livemoney,jdbcType=INTEGER},
+			</if>
+			<if test="employee != null">
+				employee = #{employee,jdbcType=VARCHAR},
+			</if>
+			<if test="reserve != null">
+				reserve = #{reserve,jdbcType=INTEGER},
+			</if>
+			<if test="guestname2 != null">
+				guestName2 = #{guestname2,jdbcType=VARCHAR},
+			</if>
+			<if test="idcard2 != null">
+				IDcard2 = #{idcard2,jdbcType=CHAR},
+			</if>
+			<if test="guestname3 != null">
+				guestName3 = #{guestname3,jdbcType=VARCHAR},
+			</if>
+			<if test="idcard3 != null">
+				IDcard3 = #{idcard3,jdbcType=CHAR},
+			</if>
+			<if test="guestname4 != null">
+				guestName4 = #{guestname4,jdbcType=VARCHAR},
+			</if>
+			<if test="idcard4 != null">
+				IDcard4 = #{idcard4,jdbcType=CHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.hm.sys.entity.Register">
+		update register
+		set reservePeople = #{reservepeople,jdbcType=VARCHAR},
+		reservePhone =
+		#{reservephone,jdbcType=VARCHAR},
+		guestName =
+		#{guestname,jdbcType=VARCHAR},
+		IDcard = #{idcard,jdbcType=CHAR},
+		roomType = #{roomtype,jdbcType=VARCHAR},
+		roomNum =
+		#{roomnum,jdbcType=INTEGER},
+		intime = #{intime,jdbcType=TIMESTAMP},
+		outtime = #{outtime,jdbcType=TIMESTAMP},
+		roomstate =
+		#{roomstate,jdbcType=VARCHAR},
+		createtime =
+		#{createtime,jdbcType=TIMESTAMP},
+		earnest =
+		#{earnest,jdbcType=INTEGER},
+		liveday = #{liveday,jdbcType=INTEGER},
+		livemoney = #{livemoney,jdbcType=INTEGER},
+		employee =
+		#{employee,jdbcType=VARCHAR},
+		reserve = #{reserve,jdbcType=INTEGER},
+		guestName2 = #{guestname2,jdbcType=VARCHAR},
+		IDcard2 =
+		#{idcard2,jdbcType=CHAR},
+		guestName3 = #{guestname3,jdbcType=VARCHAR},
+		IDcard3 = #{idcard3,jdbcType=CHAR},
+		guestName4 =
+		#{guestname4,jdbcType=VARCHAR},
+		IDcard4 = #{idcard4,jdbcType=CHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>

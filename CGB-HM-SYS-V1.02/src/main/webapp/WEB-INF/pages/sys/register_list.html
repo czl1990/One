@@ -1,0 +1,328 @@
+
+<div class="row">
+	<div class="col-lg-3 col-xs-6">
+		<!-- small box -->
+		<div class="small-box bg-aqua">
+			<div class="inner">
+				<h3>10</h3>
+
+				<p>总房数</p>
+			</div>
+			<div class="icon">
+				<i class="glyphicon glyphicon-th"></i>
+			</div>
+			<a href="#" class="small-box-footer">More info <i
+				class="fa fa-arrow-circle-right"></i></a>
+		</div>
+	</div>
+	<!-- ./col -->
+	<div class="col-lg-3 col-xs-6">
+		<!-- small box -->
+		<div class="small-box bg-green">
+			<div class="inner">
+				<h3>5</h3>
+
+				<p>单人间</p>
+			</div>
+			<div class="icon">
+				<i class="glyphicon glyphicon-user"></i>
+			</div>
+			<a href="#" class="small-box-footer">More info <i
+				class="fa fa-arrow-circle-right"></i></a>
+		</div>
+	</div>
+	<!-- ./col -->
+	<div class="col-lg-3 col-xs-6">
+		<!-- small box -->
+		<div class="small-box bg-yellow">
+			<div class="inner">
+				<h3>3</h3>
+
+				<p>双人间</p>
+			</div>
+			<div class="icon">
+				<i class="glyphicon glyphicon-heart"></i>
+			</div>
+			<a href="#" class="small-box-footer">More info <i
+				class="fa fa-arrow-circle-right"></i></a>
+		</div>
+	</div>
+	<!-- ./col -->
+	<div class="col-lg-3 col-xs-6">
+		<!-- small box -->
+		<div class="small-box bg-red">
+			<div class="inner">
+				<h3>2</h3>
+
+				<p>Vip房</p>
+			</div>
+			<div class="icon">
+				<i class="glyphicon glyphicon-home"></i>
+			</div>
+			<a href="#" class="small-box-footer">More info <i
+				class="fa fa-arrow-circle-right"></i></a>
+		</div>
+	</div>
+	<!-- ./col -->
+</div>
+
+<section class="content">
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="box">
+				<div class="box-header">
+					<h3 class="box-title">入住登记管理</h3>
+
+					<div class="box-tools">
+						<div class="input-group input-group-sm" style="width: 350px;">
+							<input type="text" name="table_search" id="searchNameId"
+								class="form-control pull-right" placeholder="用户名">
+
+							<div class="input-group-btn">
+								<button type="button" class="btn btn-default btn-search">
+									<i class="fa fa-search"></i>
+								</button>
+								<button type="button" class="btn btn-default btn-newRegister">新建登记
+								</button>
+								<button type="button" class="btn btn-default btn-addGuest">追加登记</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- /.box-header -->
+				<div class="box-body table-responsive no-padding">
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>登记人</th>
+								<th>手机号</th>
+								<th>房号</th>
+								<th>房间类型</th>
+								<th>住户1</th>
+								<th>住户2</th>
+								<th>住户3</th>
+								<th>住户4</th>
+								<th>押金</th>
+								<th>房费</th>
+								<th>入住时间</th>
+								<th>退房时间</th>
+								<th>创建时间</th>
+							</tr>
+						</thead>
+						<tbody id="tbodyId"></tbody>
+					</table>
+				</div>
+				<div id="pageId" class="box-footer clearfix"></div>
+				<!-- /.box-body -->
+			</div>
+			<!-- /.box -->
+		</div>
+	</div>
+</section>
+<script type="text/javascript">
+	$(document).ready(
+			function() {
+				$("#pageId").load("doPageUI.do", function() {
+					doGetObjects();
+				});
+				$(".input-group-btn")
+						.on("click", ".btn-search", doQueryObjects).on("click",
+								".btn-newRegister", doLoadNewRegisterEditUI)
+						.on("click", ".btn-addGuest", doRegisterEditUI);
+				//  $("tbody").on("click",".btn-valid",doValidById);
+			});
+	//加载入住登记页面
+	function doRegisterEditUI() {
+		var id = doGetCheckedId();
+		console.log("id=" + id)
+		if (!id) {
+			alert("请先选择");
+			return;
+		}
+		//基于id进行查询并加载入住登记页面
+		doFindObjectById(id);
+	}
+	function doLoadNewRegisterEditUI() {
+
+		//1.判定点击的对象
+		var title;
+		title = "新建登记";
+		doLoadPage(title);
+		/* 
+		if($(this).hasClass("btn-add")){
+		   title="添加预订";
+		   doLoadPage(title);
+		   
+		}else if($(this).hasClass("btn-update")){
+		   title="修改用户";
+		   var id=doGetCheckedId();
+		   console.log("id="+id)
+		   if(!id){
+			  alert("请先选择");
+			  return;
+		   }
+		   //基于id进行查询并加载编辑页面
+		   doFindObjectById(id,title);
+		} */
+	}
+	//基于id进行查询并加载入住登记页面
+	function doFindObjectById(id) {
+		//1.params
+		var params = {
+			"id" : id
+		};
+		//2.url
+		var url = "register/doFindGuestById.do";
+		//3.ajax request
+		$.getJSON(url, params, function(result) {//JsonResult
+			if (result.state == 1) {
+				$("#mainContentId").data("id", id);
+				$("#mainContentId").data("Guest", result.data);
+				var url = "register/doRegisterEditUI.do"
+				$("#mainContentId").load(url)
+			} else {
+				alert(result.message);
+			}
+		});
+	}
+
+	function doGetCheckedId() {
+		var obj = $("tbody input[name='radioId']:checked")
+		var tr = obj.parents("tr");
+		$("#mainContentId").data("roomNum", tr.find("td:eq(3)").html());
+		console.log(tr.find("td:eq(3)").html());
+		return obj.val();
+	}
+	function doLoadPage(title) {
+		var url = "reserve/doReserveEditUI.do"
+
+		$("#mainContentId").data("newRegister", true);
+		console.log($("#mainContentId").data("newRegister"))
+		$("#mainContentId").load(url, function() {
+			$(".box-title").html(title);
+		})
+	}
+	/*   //禁用和启用操作
+	  function doValidById(){
+	   //params
+	   var rowData=$(this).parents("tr").data("rowData");
+	   var id=rowData.id;
+	   var newValid=rowData.reserve?0:2;
+	   var params={"id":rowData.id,"reserve":newValid};
+	   //url
+	   var url="reserve/doValidById.do";
+	   //ajax request
+	      var btn=$(this);//获取点击的button对象
+	   $.post(url,params,function(result){
+	   	   if(result.state==1){
+	   		   alert(result.message);
+	   		   //doGetObjects();//重新查询刷新
+	   		   //优化方式实现(局部刷新:修改button显示,修改td内容显示)
+	   		   doEditRow(btn,rowData.reserve);
+	   	   }else{
+	   		   alert(result.message);
+	   	   }
+	      })    
+	  }     */
+	/*   function doEditRow(obj,reserve){
+	   //1.修改按钮上的内容
+	   $(obj).html(reserve?"启用":"取消");
+	   //2.修改tr中第5个td中的内容(查询API文档)
+	   var tr=$(obj).parents("tr");
+	   tr.find("td:eq(8)").text(reserve?"取消":"启用");
+	   //3.获取当前行tr对象，然后重新绑定新的值
+	   var rowData=tr.data("rowData")
+	   rowData.reserve=reserve?0:2;
+	   tr.data("rowData",rowData);
+	  } */
+	//处理查询按钮事件
+	function doQueryObjects() {
+		$("#pageId").data("pageCurrent", 1);
+		doGetObjects();
+	}
+	//页面加载完成异步加载当前页数据
+	function doGetObjects() {
+		var url = "register/doFindPageObjects.do";
+		var pageCurrent = $("#pageId").data("pageCurrent");
+		if (!pageCurrent)
+			pageCurrent = 1;
+		var params = {
+			"pageCurrent" : pageCurrent
+		}
+		params.reservePeople = $("#searchNameId").val().trim();
+		console.log(params);
+		$.getJSON(url, params, function(result) {
+			console.log(result);
+			doHandleResponseResult(result);
+		});
+	}
+	function doHandleResponseResult(result) {
+		if (result.state == 1) {
+			doSetTableBodyRows(result.data.records);
+			doSetPagination(result.data);
+		} else {
+			alert(result.message);
+		}
+	}
+	//通过服务端返回的数据初始化页面
+	function doSetTableBodyRows(data) {
+		//1.获取tbody对象，并清空内容
+		var tBody = $("#tbodyId");
+		tBody.empty();
+		//2.迭代data内容将数据追加到tbody中
+		for ( var i in data) {
+			var tr = $("<tr></tr>");
+			tr.data("rowData", data[i]);
+			var tds = doCreateTds(data[i]);
+			tr.append(tds);
+			tBody.append(tr);
+		}
+	}
+	function doCreateTds(row) {
+		console.log(row);
+		var tds = "<td><input type='radio' name='radioId' value='"+row.id+"' ></td>"
+				+ "<td>"
+				+ row.reservepeople
+				+ "</td>"
+				+ "<td>"
+				+ row.reservephone
+				+ "</td>"
+				+ "<td>"
+				+ row.roomnum
+				+ "</td>"
+				+ "<td>"
+				+ row.roomtype
+				+ "</td>"
+				+ "<td>"
+				+ row.guestname
+				+ "</td>"
+				+ "<td>"
+				+ row.guestname2
+				+ "</td>"
+				+ "<td>"
+				+ row.guestname3
+				+ "</td>"
+				+ "<td>"
+				+ row.guestname4
+				+ "</td>"
+				+ "<td>"
+				+ row.earnest
+				+ "</td>"
+				+ "<td>"
+				+ row.livemoney
+				+ "</td>"
+				+ "<td>"
+				+ new Date(row.intime).toLocaleString()
+				+ "</td>"
+				+ "<td>"
+				+ new Date(row.outtime).toLocaleString()
+				+ "</td>"
+				+ "<td>" + new Date(row.createtime).toLocaleString() + "</td>";
+		return tds;
+	}
+</script>
+
+
+
+

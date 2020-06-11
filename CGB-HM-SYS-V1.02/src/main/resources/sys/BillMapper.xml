@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hm.sys.dao.BillDao">
+<!-- 从bill表(即是最终账单表)获取最大流水号: 是用来产生新的流水号 -->
+	<select id="findSerialnumber" resultType="String">
+    	select max(serialnumber) from bill;
+    </select>
+<!-- 把消费信息存到数据库 -->
+	<insert id="insertObject">
+	<!-- insert into bill (serialnumber,roomNum,guestName,
+	needmoney,employee,created,checkin,checkout) values( 
+	serialnumber=#{serialnumber},
+	roomNum=#{roomNum},
+	guestName=#{guestName},
+	needmoney=#{needmoney},
+	employee=#{employee},
+	created=now(),
+	checkin=#{checkin},
+	checkout=#{checkout}) -->
+	insert into bill values( 
+	null,
+	#{serialnumber},
+	#{roomNum},
+	#{guestName},
+	#{needmoney},
+	null,
+	null,
+	#{employee},
+	now(),
+	#{checkin},
+	#{checkout})
+	</insert>
+	
+</mapper>

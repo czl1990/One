@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hm.sys.dao.RoomstateDao">
+ <!-- 基于房号在点击结账后修改客房表房间状态 -->
+	<update id="updateRoomState">
+		update roomstate set roomstate="空闲" 
+		where roomNum=#{roomNum}
+	</update>
+</mapper>

@@ -1,0 +1,282 @@
+
+<div class="row">
+	<div class="col-md-3 col-sm-6 col-xs-12">
+		<div class="info-box">
+			<span class="info-box-icon bg-aqua"><i
+				class="glyphicon glyphicon-glass"></i></span>
+
+			<div class="info-box-content">
+				<span class="info-box-text">饮品库存数</span> <span
+					class="info-box-number">1,410</span>
+			</div>
+			<!-- /.info-box-content -->
+		</div>
+		<!-- /.info-box -->
+	</div>
+	<!-- /.col -->
+	<div class="col-md-3 col-sm-6 col-xs-12">
+		<div class="info-box">
+			<span class="info-box-icon bg-green"><i class="fa fa-cutlery"></i></span>
+
+			<div class="info-box-content">
+				<span class="info-box-text">食品库存数</span> <span
+					class="info-box-number">1,120</span>
+			</div>
+			<!-- /.info-box-content -->
+		</div>
+		<!-- /.info-box -->
+	</div>
+	<!-- /.col -->
+	<div class="col-md-3 col-sm-6 col-xs-12">
+		<div class="info-box">
+			<span class="info-box-icon bg-yellow"><i
+				class="glyphicon glyphicon-user"></i></span>
+
+			<div class="info-box-content">
+				<span class="info-box-text">购买人数</span> <span
+					class="info-box-number">648</span>
+			</div>
+			<!-- /.info-box-content -->
+		</div>
+		<!-- /.info-box -->
+	</div>
+	<!-- /.col -->
+	<div class="col-md-3 col-sm-6 col-xs-12">
+		<div class="info-box">
+			<span class="info-box-icon bg-red"><i class="fa fa-star-o"></i></span>
+
+			<div class="info-box-content">
+				<span class="info-box-text">好评数</span> <span class="info-box-number">439</span>
+			</div>
+			<!-- /.info-box-content -->
+		</div>
+		<!-- /.info-box -->
+	</div>
+	<!-- /.col -->
+</div>
+
+<div class="row">
+	<div class="col-md-3">
+		<section class="content">
+			<!-- /. box -->
+			<div class="box box-solid">
+				<div class="box box-primary">
+					<div class="box-header with-border">
+						<h3 class="box-title">
+							<font style="vertical-align: inherit;"><font
+								style="vertical-align: inherit;">快速查询</font></font>
+						</h3>
+					</div>
+					<!-- /.box-header -->
+					<!-- form start -->
+					<form role="form">
+						<div class="box-body">
+							<div class="form-group">
+								<label for="exampleInputEmail1"><font
+									style="vertical-align: inherit;"><font
+										style="vertical-align: inherit;">入住时间</font></font></label> <input
+									type="date" class="form-control" id="exampleInputEmail1">
+							</div>
+							<div class="form-group">
+								<label for="exampleInputPassword1"><font
+									style="vertical-align: inherit;"><font
+										style="vertical-align: inherit;">名字</font></font></label> <input type="text"
+									class="form-control" id="exampleInputPassword1">
+							</div>
+
+							<div class="form-group">
+								<label for="exampleInputPassword1"><font
+									style="vertical-align: inherit;"><font
+										style="vertical-align: inherit;">手机号</font></font></label> <input type="text"
+									class="form-control" id="exampleInputPassword1">
+							</div>
+						</div>
+						<!-- /.box-body -->
+
+						<div class="box-footer">
+							<button type="submit" class="btn btn-primary">
+								<font style="vertical-align: inherit;"><font
+									style="vertical-align: inherit;">查询</font></font>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</section>
+	</div>
+	<!-- /.col -->
+
+	<!-- row -->
+	<div class="col-md-9">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title">账单管理</h3>
+
+				<div class="box-tools">
+					<div class="input-group input-group-sm" style="width: 350px;">
+						<input type="text" name="table_search" id="searchNameId"
+							class="form-control pull-right" placeholder="用户名">
+
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-default btn-search">
+								<i class="fa fa-search"></i>
+							</button>
+							<button type="button" class="btn btn-default btn-delete">删除</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body table-responsive no-padding">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th><input type="checkbox" id="checkAll">全选</th>
+							<th>商品名称</th>
+							<th>数量</th>
+							<th>总价</th>
+							<th>房间号码</th>
+							<th>下单时间</th>
+						</tr>
+					</thead>
+					<tbody id="tbodyId">
+						<tr>
+							<td colspan="7">数据正在加载中....</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div id="pageId" class="box-footer clearfix">
+				<!-- 加载分页页面 -->
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+	</div>
+</div>
+<script type="text/javascript">
+	$(function() {
+		$("#pageId").load("doPageUI.do", function() {
+			doGetObjects();
+		});
+		$(".input-group-btn").on("click",".btn-search",doQueryObjects).on(
+				"click",".btn-delete",doDeleteObjects);
+		$("thead").on("change","#checkAll",doChangeTBodyCheckBoxState);
+		$("#tbodyId").on("change",'.cBox',doChangeTHeadCheckBoxState);
+				
+	})
+
+	function doGetObjects() {
+		//1.定义url和参数
+		var url = "bills/doFindPageObjects.do"
+		var pageCurrent = $("#pageId").data("pageCurrent");
+		if (!pageCurrent)
+			pageCurrent = 1;
+		var params = {
+			"pageCurrent" : pageCurrent
+		};
+		var roomNume=$("#searchNameId").val();
+		if(roomNume) params.roomNum=roomNum;
+		//2.发起以不请求
+		$.getJSON(url, params, function(result) {
+			doHandleResponseResult(result);
+		})
+	}
+
+	function doHandleResponseResult(result) {
+		if (result.state == 1) {
+			doSetTableBodyRows(result.data.records);
+			doSetPagination(result.data);
+		} else {
+			alert(result.msg);
+		}
+	}
+
+	function doSetTableBodyRows(records) {
+		var tBody = $("#tbodyId");
+		tBody.empty();
+		for ( var i in records) {
+			var tr = $("<tr></tr>");
+			var tds = doCreateTds(records[i]);
+			tr.append(tds);
+			tBody.append(tr);
+		}
+	}
+
+	function doCreateTds(data) {
+		var tds = "<td><input type='checkbox' class='cBox' name='cItem' value='"+data.id+"'></td>"
+				+ "<td>"
+				+ data.goods
+				+ "</td>"
+				+ "<td>"
+				+ data.number
+				+ "</td>"
+				+ "<td>"
+				+ data.goodsmoney
+				+ "</td>"
+				+ "<td>"
+				+ data.roomNum
+				+ "</td>"
+				+ "<td>"
+				+ data.createtime 
+				+ "</td>"
+		return tds;
+	}
+	
+	function doQueryObjects(){
+		$("#pageId").data("pageCurrent",1);
+		doGetObjects();
+	}
+	
+	function doChangeTHeadCheckBoxState(){
+		var flag=true;
+		$("#tbodyId input[name='cItem']")
+		.each(function(){
+			flag=flag && $(this).prop("checked")
+		});
+		$("checkAll").prop("checked", flag);
+	}
+	
+	function doChangeTBodyCheckBoxState(){
+		var flag=$(this).prop("checked");
+		$("#tbodyId input[name='cItem']")
+		.prop("checked",flag);
+	}
+	
+	function doDeleteObjects(){
+		var ids = doGetCheckedIds();
+		if(ids.length==0){
+			alert("至少选择一个");
+			return;
+		}
+		if(!confirm("确认删除吗？"))
+			return;
+		var url = "bills/doDeleteObjects.do";
+		var params = {"ids":ids.toString()};
+		console.log(params);
+		$.post(url,params,function(result){
+			if(result.state==1){
+				alert(result.message);
+				doGetObjects();
+			}else{
+				alert(result.message);
+			}
+		});
+	}
+	
+	function doGetCheckedIds(){
+		var array=[];
+		$("#tbodyId input[type=checkbox]")
+		.each(function(){
+			if($(this).prop("checked")){
+				array.push($(this).val());
+			}
+		});
+		return array;
+	}
+	
+</script>
+
+
+
+

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hm.sys.dao.GoodsconsumeDao">
+<!-- 基于房号查询房内消费的商品,数量,总消费金额和消费时间 -->
+	<select id="findgoodsconsume" 
+	resultType="com.hm.sys.entity.goodsconsume">
+		select goods,number,goodsmoney,createtime from 
+		goodsconsume where roomNum=#{roomNum}
+	</select>
+	<update id="updateConsumerState">
+		update goodsconsume set consumerState=1 where roomNum=#{roomNum}
+	</update>
+</mapper>
