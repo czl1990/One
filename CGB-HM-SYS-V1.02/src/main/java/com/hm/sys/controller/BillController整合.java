@@ -31,3 +31,4 @@ public class BillController整合 {
 		return new JsonResult("收银成功");
 	}
 }
+ 
